@@ -1,16 +1,22 @@
-#include <GL\freeglut.h>
-#include "Snake.h"
 #include<iostream>
+#include<cstdlib>
+#include<ctime>
+#include "Snake.h"
+#include <GL\freeglut.h>
 
 void display();
-void reshape(int,int);
+void reshape(int width,int height);
 void init();
-void drawCell(int,int);
+void drawCell(int xCell,int yCell);
 void drawGrid();
-void keyPressed(int,int,int);
+void keyPressed(int key,int mouseX,int mouseY);
 void timer(int);
 void drawFood();
 bool checkCollision();
+int rand(int low,int high);
+void swap(int *first,int *second);
+bool isOccupied(int xCell,int yCell);
+
 int left=-20;
 int right=20;
 int top=20;
@@ -18,10 +24,13 @@ int bottom=-20;
 const float fps=10;
 int dir=snake::INVALID;
 int foodX=10,foodY=10;
+int hitCount=0;
 //--=======^========@~
 snake cobra;
+
 //////////Main/////////
 int main(int argc,char **v){
+    srand(time(0));
     glutInit(&argc,v);
     glutInitDisplayMode(GLUT_RGB);
     glutInitWindowPosition(0,0);
@@ -35,23 +44,50 @@ int main(int argc,char **v){
     init();
     return 0;
 }
+bool flag=false;
+bool gameDestroyed=false;
 void display(){
     glClear(GL_COLOR_BUFFER_BIT);
-    // glPointSize(113);
-    // glBegin(GL_POINTS);
-    // glVertex3f(0,0,0);
-    // glVertex3f(-10,0,0);
-    // glVertex3f(10,0,0);
-    // glEnd();
     drawGrid();
     drawFood();
+    cobra.setDirection(dir);
+    cobra.drawSnake();
     if(checkCollision()){
         cobra.addNode();
         std::cout<<"Collision"<<std::endl;
         std::cout.flush();
+        hitCount=0;
+        for(int i=0;i<700;i++){
+            foodX=rand(left,right-1);
+            foodY=rand(bottom,top-1);
+            if(isOccupied(foodX,foodY)){
+                hitCount++;
+            }
+            else
+            break;
+            if(hitCount>=600){
+                flag=false;
+                for(int x=left;x<right;x++){
+                    for(int y=top-1;y>=bottom;y--){
+                        if(!isOccupied(x,y)){
+                            foodX=x;
+                            foodY=y;
+                            flag=true;
+                            break;
+                        }
+                    }
+                }
+                if(flag==false){
+                    gameDestroyed=true;
+                }
+                break;
+            }
+        }
+        if(gameDestroyed){
+            std::cout<<"Game is destroyed "<<"[ *}"<<std::endl;
+            exit(0);
+        }
     }
-    cobra.setDirection(dir);
-    cobra.drawSnake();
     // std::cout<<"Displaying snake"<<std::endl;
     std::cout<<cobra.head.x<<"-curr-"<<cobra.head.y<<std::endl;
     std::cout<<cobra.head.prevX<<"-prev-"<<cobra.head.prevY<<std::endl;
@@ -117,6 +153,7 @@ void timer(int){
     glutTimerFunc(1000/fps,timer,0);
 }
 void drawFood(){
+    glColor3f(0,1,0);
     int x=foodX;
     int y=foodY;
     glBegin(GL_LINE_LOOP);
@@ -139,4 +176,18 @@ bool isOccupied(int x,int y){
         temp=temp->next;
     }
     return false;
+}
+bool isFullScreenOcupied(){
+    return false;
+}
+int rand(int min,int max){
+    if(min>max)
+    swap(&min,&max);
+    return rand()%(max-min + 1) + min;
+}
+int _temp;
+void swap(int *x,int *y){
+    _temp=*x;
+    *x=*y;
+    *y=_temp;
 }
