@@ -31,6 +31,7 @@ Node::Node(double a,double b,int direction){
     next=nullptr;
 }
 void Node::drawNode(){
+    glColor3f(1,0,0);
     glRectd(x,y,x+1,y+1);
 }
 void Node::setDirection(int direction){
@@ -77,7 +78,6 @@ snake::snake(double x,double y,int dir){
 }
 void snake::drawSnake(){
     Node *next=&head;
-    int prevDir;
     while(next!=nullptr){
         next->drawNode();
         next=next->next;
