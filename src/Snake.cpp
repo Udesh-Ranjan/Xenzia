@@ -93,20 +93,40 @@ snake::snake(double x,double y,int dir,int top,int bottom,int left,int right){
 void snake::drawSnake(){
     Node *next=&head;
     bool flag=true;
+    int count=0;
+    std::vector<int>inc;
     while(next!=nullptr){
-        if(flag){
-            glColor3f(0,1,0);
-            flag=false;
+        if(count==0){
+            glColor3f(1,0,0);
         }
         else{
-            glColor3f(1,1,0);
+            bool found=false;
+            for(int i=0;i<vec.size();i++){
+                if(vec[i]==count){
+                    inc.push_back(i);
+                    found=true;
+                    break;
+                }
+            }
+            if(!found)
+            glColor3f(0,1,1);
+            else
+            glColor3f(0.46666,0.447058,0.4784313725);
         }
         next->drawNode();
         next=next->next;
+        count++;
+    }
+    for(int i=0;i<inc.size();i++)
+    vec[inc[i]]++;
+    for(int i=vec.size()-1;i>=0;i--){
+        if(vec[i]>=length)
+        vec.erase(vec.begin()+i);
     }
 }
 void snake::addNode(){
     Node * temp=&head;
+    length++;
     while(temp->next!=nullptr)
     temp=temp->next;
     temp->next=new Node(temp->prevX,temp->prevY,temp->prevDir);
