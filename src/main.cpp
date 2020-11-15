@@ -55,6 +55,7 @@ void display(){
     cobra.drawSnake();
     if(checkCollision()){
         cobra.addNode();
+        cobra.vec.push_back(1);
         std::cout<<"Collision"<<std::endl;
         std::cout.flush();
         hitCount=0;
@@ -168,7 +169,7 @@ void drawFood(){
         glVertex2f(x+1,y+1);
         glVertex2f(x,y+1);
     glEnd();
-    glColor3f(0,1,1);
+    glColor3f(0,0,1);
     glLineWidth(0.002);
     glRectd(x,y,x+1,y+1);
     glLineWidth(1);
