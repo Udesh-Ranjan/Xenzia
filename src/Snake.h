@@ -1,3 +1,4 @@
+#include<vector>
 class Node{
     public :
     double x,y,prevX,prevY;
@@ -20,7 +21,9 @@ class snake{
     static const int RIGHT=4;
     static const int INVALID=-1;
     int leftBond,rightBond,topBond,bottomBond;
+    int length=1;
     Node head;
+    std::vector<int>vec;
     snake(int top,int bottom,int left, int right);
     snake(double,double,int top,int bottom,int left, int right);
     snake(double,double,int,int top,int bottom,int left, int right);
