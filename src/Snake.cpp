@@ -5,6 +5,7 @@ Node::Node(){
     prevX=prevY=x=y=0;
     prevDir=dir=snake::INVALID;
     next=nullptr;
+    red=green=blue=1;
 }
 
 Node::Node(double a,double b){
@@ -12,6 +13,7 @@ Node::Node(double a,double b){
     prevY=y=b;
     prevDir=dir=snake::INVALID;
     next=nullptr;
+    red=green=blue=1;
 }
 Node::Node(double a,double b,int direction){
     prevX=x=a;
@@ -29,9 +31,9 @@ Node::Node(double a,double b,int direction){
     }
     prevDir=dir;
     next=nullptr;
+    red=green=blue=1;
 }
 void Node::drawNode(){
-    glColor3f(1,0,0);
     glRectd(x,y,x+1,y+1);
 }
 void Node::setDirection(int direction){
@@ -63,22 +65,42 @@ void Node::setDirection(int direction){
         default: prevDir=dir=snake::INVALID;
     }
 }
-snake::snake(){
+snake::snake(int top,int bottom,int left,int right){
+    topBond=top;
+    bottomBond=bottom;
+    leftBond=left;
+    rightBond=right;
     head.setDirection(snake::INVALID);
 }
-snake::snake(double x,double y){
+snake::snake(double x,double y,int top,int bottom,int left,int right){
     head.x=x;
     head.y=y;
+    topBond=top;
+    bottomBond=bottom;
+    leftBond=left;
+    rightBond=right;
     head.setDirection(snake::INVALID);
 }
-snake::snake(double x,double y,int dir){
+snake::snake(double x,double y,int dir,int top,int bottom,int left,int right){
     head.x=x;
     head.y=y;
+    topBond=top;
+    bottomBond=bottom;
+    leftBond=left;
+    rightBond=right;
     head.setDirection(dir);
 }
 void snake::drawSnake(){
     Node *next=&head;
+    bool flag=true;
     while(next!=nullptr){
+        if(flag){
+            glColor3f(0,1,0);
+            flag=false;
+        }
+        else{
+            glColor3f(1,1,0);
+        }
         next->drawNode();
         next=next->next;
     }
@@ -91,8 +113,39 @@ void snake::addNode(){
 }
 void snake::setDirection(int dir){
     Node *temp=&head;
-    while(temp){
-        temp->setDirection(dir);
+    if(temp==nullptr)
+    return;
+    temp->setDirection(dir);
+    
+    bool exe=false;
+    if(temp->y>=topBond-1 &&temp->dir==snake::UP){
+        temp->prevY=temp->y;
+        temp->prevX=temp->x;
+        temp->y=bottomBond;
+        exe=true;
+    }
+    else
+    if(temp->y<=bottomBond &&temp->dir==snake::DOWN){
+        temp->prevY=temp->y;
+        temp->prevX=temp->x;
+        temp->y=topBond-1;
+        exe=true;
+    }
+    if(temp->x>=rightBond-1 &&temp->dir==snake::RIGHT){
+        temp->prevY=temp->y;
+        temp->prevX=temp->x;
+        temp->x=leftBond;
+        exe=true;
+    }
+    else
+    if(temp->x<=leftBond &&temp->dir==snake::LEFT){
+        temp->prevY=temp->y;
+        temp->prevX=temp->x;
+        temp->x=rightBond-1;
+        exe=true;
+    }
+
+    if(!exe){
         if(temp->dir==snake::UP){
             temp->prevY=temp->y;
             temp->prevX=temp->x;
@@ -116,7 +169,29 @@ void snake::setDirection(int dir){
             temp->prevY=temp->y;
             temp->x--;
         }
-        dir=temp->prevDir;
+    }
+    int prevX=temp->prevX;
+    int prevY=temp->prevY;
+    int currX,currY;
+    temp=temp->next;
+    while(temp){
+        currX=temp->x;
+        currY=temp->y;
+        temp->x=prevX;
+        temp->y=prevY;
+        temp->prevX=currX;
+        temp->prevY=currY;
+        prevX=currX;
+        prevY=currY;
         temp=temp->next;
     }
+}
+bool snake::collision(){
+    Node *temp=head.next;
+    while(temp){
+        if(head.x==temp->x&&head.y==temp->y)
+        return true;
+        temp=temp->next;
+    }
+    return false;
 }
