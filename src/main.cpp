@@ -21,12 +21,13 @@ int left=-20;
 int right=20;
 int top=20;
 int bottom=-20;
-const float fps=10;
+const float fps=5;
 int dir=snake::INVALID;
 int foodX=10,foodY=10;
 int hitCount=0;
+bool alive=true;
 //--=======^========@~
-snake cobra;
+snake cobra(top,bottom,left,right);
 
 //////////Main/////////
 int main(int argc,char **v){
@@ -87,6 +88,10 @@ void display(){
             std::cout<<"Game is destroyed "<<"[ *}"<<std::endl;
             exit(0);
         }
+    }
+    if(cobra.collision()){
+        std::cout<<"Snake Crashed"<<std::endl;
+        exit(0);
     }
     // std::cout<<"Displaying snake"<<std::endl;
     std::cout<<cobra.head.x<<"-curr-"<<cobra.head.y<<std::endl;
@@ -156,12 +161,17 @@ void drawFood(){
     glColor3f(0,1,0);
     int x=foodX;
     int y=foodY;
+    glLineWidth(3);
     glBegin(GL_LINE_LOOP);
         glVertex2f(x,y);
         glVertex2f(x+1,y);
         glVertex2f(x+1,y+1);
         glVertex2f(x,y+1);
     glEnd();
+    glColor3f(0,1,1);
+    glLineWidth(0.002);
+    glRectd(x,y,x+1,y+1);
+    glLineWidth(1);
 }
 bool checkCollision(){
     if(cobra.head.x==foodX&&cobra.head.y==foodY)
