@@ -21,11 +21,14 @@ int left=-20;
 int right=20;
 int top=20;
 int bottom=-20;
-const float fps=5;
+double fps=10;
 int dir=snake::INVALID;
 int foodX=10,foodY=10;
 int hitCount=0;
-bool alive=true;
+bool alive=true,flag=false,gameDestroyed=false;
+double timeElapsedMilliseconds=0,timeElapsedSeconds=0;
+int prevSecond=-1;
+double increment=0.0000250069;
 //--=======^========@~
 snake cobra(top,bottom,left,right);
 
@@ -33,7 +36,7 @@ snake cobra(top,bottom,left,right);
 int main(int argc,char **v){
     srand(time(0));
     glutInit(&argc,v);
-    glutInitDisplayMode(GLUT_RGB);
+    glutInitDisplayMode(GLUT_RGB|GLUT_DOUBLE);
     glutInitWindowPosition(0,0);
     glutInitWindowSize(500,500);
     glutCreateWindow("Snake Game");
@@ -45,8 +48,7 @@ int main(int argc,char **v){
     init();
     return 0;
 }
-bool flag=false;
-bool gameDestroyed=false;
+
 void display(){
     glClear(GL_COLOR_BUFFER_BIT);
     drawGrid();
@@ -86,19 +88,21 @@ void display(){
             }
         }
         if(gameDestroyed){
-            std::cout<<"Game is destroyed "<<"[ *}"<<std::endl;
-            exit(0);
+            std::cout<<"Game is destroyed "<<"[*}~"<<std::endl;
+            MessageBox(nullptr,"Your Score : ","Game Destroyed [*}",0);
+            glutLeaveMainLoop();
         }
     }
     if(cobra.collision()){
         std::cout<<"Snake Crashed"<<std::endl;
-        exit(0);
+        MessageBox(nullptr,"Your Score : ","Game Over",0);
+        glutLeaveMainLoop();
     }
     // std::cout<<"Displaying snake"<<std::endl;
-    std::cout<<cobra.head.x<<"-curr-"<<cobra.head.y<<std::endl;
-    std::cout<<cobra.head.prevX<<"-prev-"<<cobra.head.prevY<<std::endl;
+    // std::cout<<cobra.head.x<<"-curr-"<<cobra.head.y<<std::endl;
+    // std::cout<<cobra.head.prevX<<"-prev-"<<cobra.head.prevY<<std::endl;
     std::cout.flush();
-    glFlush();
+    glutSwapBuffers();
 }
 void reshape(int w,int h){
     glViewport(0,0,w,h);
@@ -157,6 +161,21 @@ void keyPressed(int key,int x,int y){
 void timer(int){
     glutPostRedisplay();
     glutTimerFunc(1000/fps,timer,0);
+    timeElapsedMilliseconds+=(1000.0/fps);
+    if(timeElapsedMilliseconds>=1000){
+        timeElapsedSeconds+=timeElapsedMilliseconds/1000;
+        timeElapsedMilliseconds-=1000;
+    }
+    if(timeElapsedSeconds!=prevSecond && ((int)timeElapsedSeconds)!=0){
+        prevSecond=timeElapsedSeconds;
+        fps+=increment;
+        if(fps>=100){
+            fps=100;
+        }
+    }
+    std::cout<<"time : "<<timeElapsedSeconds<<"sec"<<std::endl;
+    std::cout<<"fps : "<<fps<<std::endl;
+    std::cout.flush();
 }
 void drawFood(){
     glColor3f(0,1,0);
